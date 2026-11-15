@@ -57,6 +57,28 @@ button{font-family:inherit;color:inherit;border:0;cursor:pointer}
 #test .judge button{font-size:20px;padding:14px;border-radius:16px}
 #test .peek{font-size:18px}
 #test .timer{height:10px}
+/* ---- analyse 2.0 ---- */
+.stchip{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:2px 9px;white-space:nowrap}
+.stlegend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.ptrow{padding:10px 0;border-top:1px solid #f0edf8}
+.ptrow b{font-size:15px}
+.stbar{display:flex;height:14px;border-radius:99px;overflow:hidden;margin:6px 0 4px;gap:2px;background:#f4f2fa}
+.stbar i{display:block;height:100%}
+.ptft{font-size:13px;margin-top:3px}
+.pair{padding:6px 0;font-size:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.somrow{display:grid;grid-template-columns:70px 1fr;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid #f0edf8}
+.somrow>b{font-size:15px}
+.dots{display:flex;flex-wrap:wrap;align-items:flex-end;gap:3px;font-size:13px}
+.dot{background:none;border:0;padding:2px 1px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-width:16px}
+.dot span{width:13px;height:13px;border-radius:50%;background:var(--c);display:block}
+.dot em{width:4px;background:#b9b2d6;border-radius:2px;display:block}
+.dot:focus-visible span{outline:2px solid var(--ink)}
+.sominfo{grid-column:2;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.pat{color:var(--soft)}
+.dotinfo{grid-column:2;font-size:13px}
+.dotinfo:empty{display:none}
+table.hard .tb{height:12px;background:#f0edfb;border-radius:99px;overflow:hidden}
+table.hard .tb i{display:block;height:100%;border-radius:99px}
 /* ---- snake ---- */
 #snakeScr{background:#0f1a14;color:#e8f3ea;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;gap:12px;padding:14px 12px 18px}
 .snk-head{width:100%;max-width:440px;display:flex;align-items:center;gap:8px}
@@ -74,7 +96,9 @@ button{font-family:inherit;color:inherit;border:0;cursor:pointer}
 .snk-over p{margin:0;color:#b9d3bf;font-size:17px;line-height:1.5;white-space:pre-line}
 .snk-main{background:#7ee081;color:#0c1a10;border:0;border-radius:999px;padding:12px 28px;font-size:18px;font-weight:700;font-family:inherit}
 .snk-sec{background:none;color:#b9d3bf;border:1px solid #2f4a39;border-radius:999px;padding:9px 22px;font-size:15px;font-family:inherit}
-.snk-pad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(2,58px);gap:8px}
+.snk-pad{display:grid;grid-template-columns:repeat(3,clamp(64px,9.5vh,104px));grid-template-rows:repeat(2,clamp(58px,8.5vh,94px));gap:clamp(8px,1.2vh,14px)}
+.snk-pad button{font-size:clamp(24px,3.6vh,38px)!important}
+.snk-pad .snk-pause{font-size:clamp(18px,2.6vh,28px)!important}
 .snk-pad button{background:#1d3024;border:1px solid #2c4636;color:#e8f3ea;border-radius:14px;font-size:24px;touch-action:none}
 .snk-pad button:active{background:#2b4a36}
 .snk-up{grid-column:2;grid-row:1}.snk-left{grid-column:1;grid-row:2}.snk-down{grid-column:2;grid-row:2}.snk-right{grid-column:3;grid-row:2}
@@ -417,6 +441,9 @@ table.hard td{padding:8px 6px;border-bottom:1px solid #f3f1fa}
     <div id="pa">
       <div id="paLoading" class="muted">Gegevens ophalen…</div>
       <div id="paBody" style="display:none">
+        <div class="seg" id="paSeg" style="margin-bottom:14px"><button data-v="overzicht" class="on" onclick="paTab('overzicht')">Overzicht</button><button data-v="tafel" onclick="paTab('tafel')">Per tafel</button><button data-v="som" onclick="paTab('som')">Per som</button><button data-v="verloop" onclick="paTab('verloop')">Verloop per week</button></div>
+        <div id="pa_tafel" style="display:none"></div><div id="pa_som" style="display:none"></div><div id="pa_verloop" style="display:none"></div>
+        <div id="pa_overzicht">
         <div class="kpis" id="kpis"></div>
         <div class="muted" id="devices" style="margin-top:8px"></div>
         <div class="box"><h3>Oefentijd per dag (minuten, laatste 14 dagen)</h3><div class="days" id="days"></div></div>
@@ -431,6 +458,7 @@ table.hard td{padding:8px 6px;border-bottom:1px solid #f3f1fa}
         </div>
         <div class="box"><h3>Sommen waar ze moeite mee heeft</h3><div id="hard"></div></div>
         <div class="box"><h3>Toetsen</h3><div id="testsBox"></div></div>
+        </div>
       </div>
     </div>
 
@@ -459,6 +487,10 @@ table.hard td{padding:8px 6px;border-bottom:1px solid #f3f1fa}
           <select id="snakeSel" onchange="snakeCfg().min=+this.value;store.saveSettings(settings)">
             <option value="1">1 minuut (om te testen)</option><option value="5">5 minuten</option><option value="10">10 minuten</option><option value="15">15 minuten</option><option value="20">20 minuten</option><option value="0">uit</option>
           </select> aaneengesloten oefenen</div>
+        <div class="row">Startsnelheid slang
+          <select id="snakeSpeedSel" onchange="snakeCfg().speed=+this.value;store.saveSettings(settings)">
+            <option value="250">Heel rustig</option><option value="200">Rustig (standaard)</option><option value="170">Iets sneller</option><option value="145">Normaal</option>
+          </select></div>
         <div class="muted">Elke keer dat ze in één oefenronde die tijd vol maakt, start Snake meteen. Na het potje gaat ze verder met oefenen. Alleen tijd waarin ze antwoorden geeft telt mee.</div>
         <div class="muted" id="snakeStats" style="margin-top:6px"></div>
       </div>
@@ -748,6 +780,7 @@ const LocalStore={
   addTestAnswer(a){this.d.testAnswers.push(a);this.p()},
   async loadFacts(){return aggregate(this.d.answers)},
   async loadSessions(){return this.d.sessions},
+  async loadAnswers(){return this.d.answers},
   async loadTests(){return {tests:this.d.tests,answers:this.d.testAnswers}},
   async wipe(){this.d.sessions=[];this.d.answers=[];this.d.tests=[];this.d.testAnswers=[];this.p()},
   async addBulk(ss,as,ts,tas){this.d.sessions.push(...ss);this.d.answers.push(...as);this.d.tests.push(...(ts||[]));this.d.testAnswers.push(...(tas||[]));this.p()},
@@ -840,6 +873,7 @@ const SupaStore={
     catch(e){console.warn(e);return lsGet('th-facts',{})}
   },
   async loadSessions(){await this.flush();return fetchAll('sessions','started_at')},
+  async loadAnswers(){await this.flush();return fetchAll('answers','created_at')},
   async loadTests(){
     await this.flush();
     try{const [tests,answers]=await Promise.all([fetchAll('tests','started_at'),fetchAll('test_answers','created_at')]);missingTables=false;return {tests,answers}}
@@ -1053,7 +1087,8 @@ let pendingDeco=null;
 /* =========================================================
    SNAKE – beloning na aaneengesloten oefenen
    ========================================================= */
-const SNK_N=20,SNK_BASE=145; // 145 ms per stap: tussen "rustig" (170) en "normaal" (120)
+const SNK_N=20,SNK_LEN=5; // beginlengte 5 vakjes
+function snkBase(){return +(snakeCfg().speed||200)} // ms per stap; standaard 200 = rustiger dan "rustig" (170)
 const SNK_DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 let snk={state:'off'},snkTimer=null,snkMusicT=null,snkNextT=0,snkStep=0,pendingSnake=false,sessSnakes=0;
 function snakeCfg(){settings.snake=settings.snake||{};return settings.snake}
@@ -1083,11 +1118,11 @@ function openSnake(){
 }
 function snakeStart(){
   audio();const m=Math.floor(SNK_N/2);
-  snk={state:'play',snake:[[m,m],[m-1,m],[m-2,m]],dir:'right',queue:[],score:0,tickMs:SNK_BASE,food:null,size:snk.size,cell:snk.cell};
-  $('#snkScore').textContent=0;snkPlaceFood();$('#snkOver').classList.add('hidden');
+  snk={state:'play',snake:[...Array(SNK_LEN)].map((_,i)=>[m-i+1,m]),dir:'right',queue:[],score:0,tickMs:snkBase(),foods:[],size:snk.size,cell:snk.cell};
+  $('#snkScore').textContent=0;snkPlaceFood();snkPlaceFood(); // altijd 2 appels$('#snkOver').classList.add('hidden');
   snkDraw();snkRestart();snkMusicStart();
 }
-function snkPlaceFood(){const free=[];for(let x=0;x<SNK_N;x++)for(let y=0;y<SNK_N;y++)if(!snk.snake.some(s=>s[0]===x&&s[1]===y))free.push([x,y]);snk.food=free[rnd(free.length)]}
+function snkPlaceFood(){const free=[];for(let x=0;x<SNK_N;x++)for(let y=0;y<SNK_N;y++)if(!snk.snake.some(s=>s[0]===x&&s[1]===y)&&!snk.foods.some(f=>f[0]===x&&f[1]===y))free.push([x,y]);if(free.length)snk.foods.push(free[rnd(free.length)])}
 function snkTurn(d){
   if(snk.state==='paused')snkResume();
   if(snk.state!=='play')return;
@@ -1097,13 +1132,14 @@ function snkTurn(d){
 function snkStepFn(){
   if(snk.queue.length)snk.dir=snk.queue.shift();
   const [dx,dy]=SNK_DIRS[snk.dir],h=snk.snake[0],nh=[(h[0]+dx+SNK_N)%SNK_N,(h[1]+dy+SNK_N)%SNK_N]; // doorlopende muren
-  const eating=nh[0]===snk.food[0]&&nh[1]===snk.food[1],body=eating?snk.snake:snk.snake.slice(0,-1);
+  const fi=snk.foods.findIndex(f=>f[0]===nh[0]&&f[1]===nh[1]),eating=fi>-1,body=eating?snk.snake:snk.snake.slice(0,-1);
   if(body.some(s=>s[0]===nh[0]&&s[1]===nh[1]))return snkGameOver(false);
   snk.snake.unshift(nh);
   if(eating){
     snk.score++;$('#snkScore').textContent=snk.score;snkBuzz(15);snkSfxEat();
-    if(snk.snake.length===SNK_N*SNK_N)return snkGameOver(true);
-    snkPlaceFood();snk.tickMs=Math.max(SNK_BASE*0.55,SNK_BASE-snk.score*2);snkRestart(); // langzaam sneller
+    snk.foods.splice(fi,1);snkPlaceFood(); // de opgegeten appel komt ergens anders terug, de andere blijft liggen
+    if(!snk.foods.length)return snkGameOver(true);
+    const b=snkBase();snk.tickMs=Math.max(b*0.6,b-snk.score*1.5);snkRestart(); // heel langzaam sneller
   }else snk.snake.pop();
   snkDraw();
 }
@@ -1137,9 +1173,9 @@ function snkDraw(){
   ctx.fillStyle='#16241c';ctx.fillRect(0,0,size,size);ctx.fillStyle='#1a2b20';
   for(let x=0;x<SNK_N;x++)for(let y=0;y<SNK_N;y++)if((x+y)%2)ctx.fillRect(x*cell,y*cell,cell,cell);
   if(!snk.snake)return;
-  const fx=snk.food[0]*cell+cell/2,fy=snk.food[1]*cell+cell/2;
-  ctx.fillStyle='#ff6b5b';ctx.beginPath();ctx.arc(fx,fy+cell*0.04,cell*0.38,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#6fcf5a';ctx.beginPath();ctx.ellipse(fx+cell*0.12,fy-cell*0.36,cell*0.13,cell*0.07,-0.6,0,Math.PI*2);ctx.fill();
+  snk.foods.forEach(f=>{const fx=f[0]*cell+cell/2,fy=f[1]*cell+cell/2;
+    ctx.fillStyle='#ff6b5b';ctx.beginPath();ctx.arc(fx,fy+cell*0.04,cell*0.38,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#6fcf5a';ctx.beginPath();ctx.ellipse(fx+cell*0.12,fy-cell*0.36,cell*0.13,cell*0.07,-0.6,0,Math.PI*2);ctx.fill()});
   const pad=cell*0.08;
   snk.snake.forEach((s,i)=>{const t=i/Math.max(1,snk.snake.length-1);ctx.fillStyle=i===0?'#c8f7b0':`hsl(${118-t*20},${62-t*15}%,${66-t*22}%)`;snkRR(ctx,s[0]*cell+pad,s[1]*cell+pad,cell-2*pad,cell-2*pad,cell*0.28)});
   const h=snk.snake[0],[dx,dy]=SNK_DIRS[snk.dir],cx=h[0]*cell+cell/2,cy=h[1]*cell+cell/2,px=-dy,py=dx;ctx.fillStyle='#0c1a10';
@@ -1382,7 +1418,7 @@ function renderSettings(){
    $('#passedInfo').innerHTML=nw.length&&old.length?`Ze oefent nu <b>ongeveer 2/3 nieuwe sommen</b> (tafel ${nw.join(', ')}) en <b>1/3 herhaling</b> (tafel ${old.join(', ')}). Dat geldt ook voor de toetsen.`
      :old.length&&!nw.length?'Alle gekozen tafels zijn al gehaald, dus ze herhaalt alleen. Kies hierboven een nieuwe tafel om de verdeling 2/3 nieuw en 1/3 herhaling te krijgen.'
      :'Gehaalde tafels die je hierboven ook aanzet, komen terug in ongeveer 1 op de 3 sommen. Zo blijft de nadruk op de nieuwe tafels.'}
-  $('#snakeSel').value=String(snakeMin());{const c=snakeCfg();$('#snakeStats').textContent=c.played?`Gespeeld: ${c.played}× · record ${c.best||0} · vorige keer ${c.last??0}`:'Nog niet gespeeld.'}
+  $('#snakeSel').value=String(snakeMin());$('#snakeSpeedSel').value=String(snakeCfg().speed||200);{const c=snakeCfg();$('#snakeStats').textContent=c.played?`Gespeeld: ${c.played}× · record ${c.best||0} · vorige keer ${c.last??0}`:'Nog niet gespeeld.'}
   $('#rewardSel').value=settings.rewardMin;if(![20,30,40].includes(settings.testN))settings.testN=40;$('#testNSel').value=settings.testN;$('#testSecSel').value=settings.testSec;$('#musicChk').checked=settings.music;$('#sfxChk').checked=settings.sfx;
   $('#themeSel').value=settings.theme||'auto';{const a=activeTheme();$('#themeNow').innerHTML='Nu actief: <b>'+(a==='normaal'?'Normaal':THEMES[a].label)+'</b>'+((settings.theme||'auto')==='auto'&&a!=='normaal'?' (automatisch, tot en met '+THEMES[a].until+')':'')+'.'}
   renderInstall();
@@ -1426,7 +1462,17 @@ async function loadDemo(){
         const t=T[rnd(5)],n=1+rnd(10),k=n+'x'+t,ans=n*t,ok=Math.random()<pOk(k,t,d);
         const first=Math.max(500,denk(k,t,ok,d)),ms=first+700+rnd(900);
         t0+=ms+1200;ok?S.correct++:S.wrong++;S.active_ms+=ms+1200;run=ok?run+1:0;S.best_streak=Math.max(S.best_streak,run);
-        as.push({id:uuid(),session_id:S.id,a:n,tafel:t,given:ok?ans:ans+[t,-t,1,-1,t][rnd(5)],correct:ok,ms,first_ms:first,created_at:new Date(t0).toISOString()});
+        let given=ans,ms2=ms;
+        if(!ok){const vast={'8x4':36,'7x3':24,'9x4':32}[k],r=Math.random();
+          if(vast&&r<.6)given=vast;
+          else if(r<.35)given=ans+[t,-t,n,-n][rnd(4)];
+          else if(r<.5&&ans>=10){given=+String(ans)[0];ms2=500+rnd(400)}          // slordig: cijfer vergeten, heel snel
+          else if(r<.65)given=ans+[1,-1,2,-2][rnd(4)];
+          else if(r<.75)given=n+t;
+          else if(r<.85&&ans>=12&&String(ans)[0]!==String(ans)[1])given=+String(ans).split('').reverse().join('');
+          else given=ans+[t,-t][rnd(2)];
+          if(given<=0)given=ans+t}
+        as.push({id:uuid(),session_id:S.id,a:n,tafel:t,given,correct:ok,ms:ms2,first_ms:first,created_at:new Date(t0).toISOString()});
       }
       S.ended_at=new Date(t0).toISOString();ss.push(S);
     }
@@ -1455,20 +1501,200 @@ function mostCommon(a){const c={};a.forEach(x=>c[x]=(c[x]||0)+1);return Object.e
 const denkS=f=>f&&f.timedOk?f.fsum/f.timedOk/1000:null;          // gemiddelde denktijd (tot 1e cijfer) bij goede antwoorden
 const vlotP=f=>f&&f.timedAll?f.quick/f.timedAll:null;              // deel van de keren goed én binnen 3 s begonnen
 const dstr=(iso,o)=>new Date(iso).toLocaleDateString('nl-NL',o||{weekday:'short',day:'numeric',month:'short'});
-let heatMode='goed',A=null;
+let heatMode='status',A=null;
+
+/* =========================================================
+   ANALYSE 2.0 – fouttypes, patronen, status per som
+   Alleen voor weergave: de oefenlogica (pick) gebruikt dit NIET.
+   ========================================================= */
+const INSTELLINGEN={
+  minPogingen:5,      // oordeel pas na zoveel pogingen
+  snelFactor:0.5,     // snel = sneller dan 50% van typische tijd
+  snelVast:1200,      // ms, grens zolang er weinig data is
+  zitErinMs:4000,     // ms, grens voor "zit erin"
+  typischVenster:20   // aantal recente pogingen voor typische tijd
+};
+function isTafelUitkomst(n){for(let x=1;x<=10;x++){if(n%x===0&&n/x>=1&&n/x<=10)return true}return false}
+function inTafel(n,t){return n%t===0&&n/t>=1&&n/t<=10}
+function mediaan(arr){const t=[...arr].sort((x,y)=>x-y);if(!t.length)return null;const m=Math.floor(t.length/2);return t.length%2?t[m]:(t[m-1]+t[m])/2}
+function classificeerFout({a,b,antwoord,ms,typischeMs}){
+  if(antwoord===null||antwoord===undefined||Number.isNaN(antwoord))return{hoofd:'leeg',labels:['leeg'],snel:false};
+  const goed=a*b,s=String(antwoord),g=String(goed),labels=[];
+  const snel=typischeMs?ms<typischeMs*INSTELLINGEN.snelFactor:ms<INSTELLINGEN.snelVast;
+  if(g.length===s.length+1&&[...g].some((_,i)=>g.slice(0,i)+g.slice(i+1)===s))labels.push('cijfer_gemist');
+  if(s.length===g.length&&s.length>1&&[...s].reverse().join('')===g)labels.push('omgedraaid');
+  if(antwoord===a+b)labels.push('opgeteld');
+  if([a*(b-1),a*(b+1),(a-1)*b,(a+1)*b].includes(antwoord))labels.push('buurfout');
+  else if(inTafel(antwoord,a)||inTafel(antwoord,b))labels.push('zelfde_tafel');
+  else if(isTafelUitkomst(antwoord))labels.push('andere_tafel');
+  if(Math.abs(antwoord-goed)<=2)labels.push('bijna');
+  let hoofd;
+  if(labels.includes('cijfer_gemist')&&snel)hoofd='slordig';
+  else hoofd=['cijfer_gemist','omgedraaid','opgeteld','buurfout','zelfde_tafel','andere_tafel','bijna'].find(l=>labels.includes(l))??'onbekend';
+  return{hoofd,labels,snel};
+}
+function patroonPerSom(pogingen){
+  if(pogingen.length<INSTELLINGEN.minPogingen)return{type:'nieuw'};
+  const fout=pogingen.filter(p=>!p.goed),echt=fout.filter(p=>p.classificatie.hoofd!=='slordig');
+  const telling={};echt.forEach(p=>{telling[p.antwoord]=(telling[p.antwoord]||0)+1});
+  const vast=Object.entries(telling).find(([,n])=>n>=2);
+  if(vast)return{type:'vaste_fout',antwoord:Number(vast[0]),aantal:vast[1]};
+  if(echt.length===0&&fout.length>0)return{type:'toevallig_slordig'};
+  if(echt.length>=2)return{type:'wisselende_fouten'};
+  return{type:'geen_patroon'};
+}
+function statusPerSom(pogingen){
+  if(pogingen.length<INSTELLINGEN.minPogingen)return'nieuw';
+  const laatste5=pogingen.slice(-5),laatste3=pogingen.slice(-3);
+  const isEchteFout=p=>!p.goed&&p.classificatie.hoofd!=='slordig';
+  const echteFouten=laatste5.filter(isEchteFout).length,laatste3Goed=laatste3.every(p=>p.goed);
+  if(echteFouten===0&&laatste3Goed&&laatste3.every(p=>p.ms<=INSTELLINGEN.zitErinMs))return'zit_erin';
+  if(echteFouten===0)return'kent_ze';
+  if(laatste3Goed)return'gaat_vooruit';
+  if(echteFouten>=2)return'lastig';
+  return'wisselend';
+}
+// Alle pogingen (oud → nieuw) verrijken met classificatie; typische tijd per tafel op basis van eerdere goede antwoorden
+function analyseerPogingen(pogingen){
+  const goedTijden={},perSom={};
+  pogingen.forEach(p=>{
+    const T=p.b,lijst=(goedTijden[T]||[]).slice(-INSTELLINGEN.typischVenster);
+    p.typischeMs=lijst.length>=5?mediaan(lijst):null;
+    p.classificatie=p.goed?null:classificeerFout({a:p.a,b:p.b,antwoord:p.antwoord,ms:p.ms,typischeMs:p.typischeMs});
+    if(p.goed){[p.a,p.b].forEach((x,i)=>{if(i===1&&p.a===p.b)return;(goedTijden[x]=goedTijden[x]||[]).push(p.ms)})}
+    const k=p.a+'x'+p.b;(perSom[k]=perSom[k]||[]).push(p);
+  });
+  const sommen={};
+  Object.entries(perSom).forEach(([k,ps])=>{sommen[k]={key:k,a:ps[0].a,b:ps[0].b,pogingen:ps,status:statusPerSom(ps),patroon:patroonPerSom(ps)}});
+  return sommen;
+}
+
+
+const FOUT_NAAM={slordig:'slordig (te snel, cijfer vergeten)',leeg:'leeg',cijfer_gemist:'cijfer vergeten',omgedraaid:'cijfers omgedraaid',opgeteld:'opgeteld i.p.v. keer',buurfout:'één keer te veel/te weinig',zelfde_tafel:'andere som uit dezelfde tafel',andere_tafel:'uitkomst uit een andere tafel',bijna:'net ernaast',onbekend:'onbekend'};
+const FOUT_KORT={slordig:'slordig',leeg:'leeg',cijfer_gemist:'cijfer vergeten',omgedraaid:'omgedraaid',opgeteld:'opgeteld',buurfout:'buurfout',zelfde_tafel:'zelfde tafel',andere_tafel:'andere tafel',bijna:'net ernaast',onbekend:'onbekend'};
+const STATUS={zit_erin:['zit erin','#1f9d55','#dff5e7'],kent_ze:['kent ze (nog traag)','#4f8a3a','#eef7e2'],gaat_vooruit:['gaat vooruit','#2a6fb8','#e3eefb'],wisselend:['wisselend','#a86b00','#fdf1d6'],lastig:['lastig','#c62f3a','#fde4e6'],nieuw:['nieuw (minder dan 5×)','#7a7590','#efedf5']};
+const STATUS_VOLG=['zit_erin','kent_ze','gaat_vooruit','wisselend','lastig','nieuw'];
+const chip=st=>`<span class="stchip" style="color:${STATUS[st][1]};background:${STATUS[st][2]}">${STATUS[st][0]}</span>`;
+function patroonTekst(p){
+  if(p.type==='vaste_fout')return `vaste fout: zegt ${p.antwoord} (${p.aantal}×)`;
+  if(p.type==='toevallig_slordig')return 'alleen slordige fouten';
+  if(p.type==='wisselende_fouten')return 'wisselende fouten: weet het niet, gokt of telt';
+  return '';
+}
+let AZ=null,paView='overzicht',somTafel=null,somSel=null;
+function toPogingen(rows){
+  return rows.map(r=>({id:r.id,sessieId:r.session_id,tijdstip:r.created_at,a:+r.a,b:+r.tafel,antwoord:(r.given===null||r.given===undefined||r.given==='')?null:+r.given,goed:!!r.correct,ms:+r.ms}))
+    .sort((x,y)=>x.tijdstip<y.tijdstip?-1:x.tijdstip>y.tijdstip?1:0);
+}
+function paTab(v){
+  paView=v;
+  document.querySelectorAll('#paSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  ['overzicht','tafel','som','verloop'].forEach(x=>{const el=$('#pa_'+x);if(el)el.style.display=x===v?'':'none'});
+  if(v==='tafel')drawPerTafel();if(v==='som')drawPerSom();if(v==='verloop')drawVerloop();
+}
+function drawPerTafel(){
+  const el=$('#pa_tafel');if(!AZ){el.innerHTML='';return}
+  const tafels=[...new Set(Object.values(AZ).map(s=>s.b))].sort((x,y)=>x-y);
+  if(!tafels.length){el.innerHTML='<div class="box"><div class="muted">Nog geen oefenpogingen.</div></div>';return}
+  let h='<div class="box"><h3>Status per tafel</h3><div class="muted" style="margin-bottom:8px">Op basis van de laatste 5 pogingen per som. Slordige fouten tellen niet mee als fout. Een oordeel komt pas na minstens 5 pogingen.</div><div class="stlegend">'+STATUS_VOLG.map(chip).join(' ')+'</div>';
+  tafels.forEach(T=>{
+    const sommen=Object.values(AZ).filter(s=>s.b===T);
+    const cnt={};sommen.forEach(s=>cnt[s.status]=(cnt[s.status]||0)+1);
+    const nooit=10-sommen.length;
+    const bar=STATUS_VOLG.map(st=>cnt[st]?`<i title="${STATUS[st][0]}: ${cnt[st]}" style="flex:${cnt[st]};background:${STATUS[st][1]}"></i>`:'').join('')+(nooit>0?`<i title="nog niet gevraagd: ${nooit}" style="flex:${nooit};background:#e4e1ee"></i>`:'');
+    const ft={};const vast=[];
+    sommen.forEach(s=>{s.pogingen.forEach(p=>{if(!p.goed)ft[p.classificatie.hoofd]=(ft[p.classificatie.hoofd]||0)+1});if(s.patroon.type==='vaste_fout')vast.push(`${s.a}×${s.b} → ${s.patroon.antwoord}`)});
+    const ftTxt=Object.entries(ft).sort((x,y)=>y[1]-x[1]).map(([k,n])=>`${n}× ${FOUT_KORT[k]}`).join(', ');
+    h+=`<div class="ptrow"><b>Tafel van ${T}${(settings.passed||[]).includes(T)?' ✓':''}</b><div class="stbar">${bar}</div>
+      <div class="muted">${STATUS_VOLG.filter(st=>cnt[st]).map(st=>`${cnt[st]} ${STATUS[st][0]}`).join(' · ')}${nooit>0?` · ${nooit} nog niet gevraagd`:''}</div>
+      <div class="ptft">${ftTxt?'Fouten: '+ftTxt:'Nog geen fouten.'}${vast.length?` · <b>vaste fout${vast.length>1?'en':''}:</b> ${vast.join(', ')}`:''}</div></div>`;
+  });
+  h+='</div>';
+  // omgekeerde paren
+  const paren=[];
+  Object.values(AZ).forEach(s=>{if(s.a>=s.b)return;const o=AZ[s.b+'x'+s.a];if(!o)return;
+    const goedSt=['zit_erin','kent_ze'];
+    if(goedSt.includes(s.status)&&o.status==='lastig')paren.push([s,o]);else if(goedSt.includes(o.status)&&s.status==='lastig')paren.push([o,s])});
+  h+=`<div class="box"><h3>Omgekeerde sommen</h3><div class="muted" style="margin-bottom:8px">Sommen waarvan ze de ene volgorde wel kent en de andere niet. Ze kent het feitje dan wel, maar herkent het niet in de andere volgorde.</div>${
+    paren.length?paren.map(([g,l])=>`<div class="pair">${chip(g.status)} <b>${g.a} × ${g.b}</b> &nbsp;tegenover&nbsp; <b>${l.a} × ${l.b}</b> ${chip(l.status)}</div>`).join(''):'<div class="muted">Geen opvallende paren.</div>'}</div>`;
+  // uitleg fouttypes
+  h+=`<div class="box"><h3>Wat betekenen de fouttypes?</h3><table class="hard"><tr><th>Fouttype</th><th>Voorbeeld</th></tr>
+    <tr><td>slordig</td><td>6×10 → 6, en veel sneller dan normaal: haast, geen kennisprobleem</td></tr>
+    <tr><td>cijfer vergeten</td><td>6×10 → 6 of 7×8 → 5, in een normaal tempo</td></tr>
+    <tr><td>omgedraaid</td><td>7×8 → 65</td></tr><tr><td>opgeteld</td><td>6×4 → 10</td></tr>
+    <tr><td>buurfout</td><td>6×7 → 48 (één keer te veel of te weinig)</td></tr>
+    <tr><td>zelfde tafel</td><td>een andere uitkomst uit de tafel van een van beide getallen</td></tr>
+    <tr><td>andere tafel</td><td>7×8 → 54 (= 6×9)</td></tr><tr><td>net ernaast</td><td>7×8 → 55</td></tr></table></div>`;
+  el.innerHTML=h;
+}
+function dotHtml(p,i,k){
+  const col=p.goed?'#22b866':p.classificatie.hoofd==='slordig'?'#f0a030':'#e5484d';
+  const bh=Math.max(2,Math.min(14,Math.round(p.ms/8000*14)));
+  return `<button class="dot" style="--c:${col}" onclick="dotInfo('${k}',${i})" aria-label="poging ${i+1}"><span></span><em style="height:${bh}px"></em></button>`;
+}
+function drawPerSom(){
+  const el=$('#pa_som');if(!AZ){el.innerHTML='';return}
+  const tafels=[...new Set(Object.values(AZ).map(s=>s.b))].sort((x,y)=>x-y);
+  if(!tafels.length){el.innerHTML='<div class="box"><div class="muted">Nog geen oefenpogingen.</div></div>';return}
+  if(!tafels.includes(somTafel))somTafel=tafels[0];
+  let h=`<div class="box"><h3>Per som: alle pogingen op een rij</h3>
+    <div class="seg">${tafels.map(T=>`<button class="${T===somTafel?'on':''}" onclick="somTafel=${T};somSel=null;drawPerSom()">Tafel van ${T}</button>`).join('')}</div>
+    <div class="legend"><span><i style="background:#22b866;border-radius:50%"></i>goed</span><span><i style="background:#e5484d;border-radius:50%"></i>fout</span><span><i style="background:#f0a030;border-radius:50%"></i>slordig</span><span>het streepje eronder = bedenktijd (hoe hoger, hoe langer)</span><span>tik op een bolletje voor details</span></div>`;
+  for(let n=1;n<=10;n++){
+    const k=n+'x'+somTafel,s=AZ[k];
+    if(!s){h+=`<div class="somrow"><b>${n} × ${somTafel}</b><div class="dots muted">nog niet gevraagd</div></div>`;continue}
+    const ps=s.pogingen,MAX=24,start=Math.max(0,ps.length-MAX);
+    const pt=patroonTekst(s.patroon);
+    h+=`<div class="somrow"><b>${n} × ${somTafel}</b><div class="dots">${start?`<span class="muted" style="margin-right:4px">+${start}</span>`:''}${ps.slice(start).map((p,j)=>dotHtml(p,start+j,k)).join('')}</div>
+      <div class="sominfo">${chip(s.status)}${pt?` <span class="pat">${pt}</span>`:''}</div>
+      <div class="dotinfo" id="di_${k}">${somSel&&somSel[0]===k?dotText(k,somSel[1]):''}</div></div>`;
+  }
+  h+='</div>';el.innerHTML=h;
+}
+function dotText(k,i){
+  const p=AZ[k].pogingen[i],d=new Date(p.tijdstip);
+  const wanneer=d.toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short'})+' '+d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+  let t=`<b>${p.a} × ${p.b}</b> · ${wanneer} · antwoord <b>${p.antwoord===null?'leeg':p.antwoord}</b> · ${(p.ms/1000).toFixed(1).replace('.',',')} s`;
+  if(p.goed)t+=' · goed';
+  else{const c=p.classificatie;t+=` · <b>${FOUT_NAAM[c.hoofd]}</b>`;const extra=c.labels.filter(l=>l!==c.hoofd);if(extra.length)t+=` (past ook bij: ${extra.map(l=>FOUT_KORT[l]).join(', ')})`}
+  return t;
+}
+function dotInfo(k,i){somSel=[k,i];document.querySelectorAll('.dotinfo').forEach(e=>e.innerHTML='');$('#di_'+CSS.escape(k)).innerHTML=dotText(k,i)}
+function weekStart(iso){const d=new Date(iso);d.setHours(0,0,0,0);const w=(d.getDay()+6)%7;d.setDate(d.getDate()-w);return d}
+function drawVerloop(){
+  const el=$('#pa_verloop');if(!AZ){el.innerHTML='';return}
+  const all=Object.values(AZ).flatMap(s=>s.pogingen);
+  if(!all.length){el.innerHTML='<div class="box"><div class="muted">Nog geen oefenpogingen.</div></div>';return}
+  const W={};
+  all.forEach(p=>{const k=+weekStart(p.tijdstip);const w=W[k]||(W[k]={start:new Date(k),goed:0,echt:0,slordig:0,ms:[]});
+    if(p.goed){w.goed++;w.ms.push(p.ms)}else if(p.classificatie.hoofd==='slordig')w.slordig++;else w.echt++});
+  const weeks=Object.values(W).sort((a,b)=>a.start-b.start).slice(-10);
+  const maxMs=Math.max(...weeks.map(w=>mediaan(w.ms)||0),1);
+  let h=`<div class="box"><h3>Verloop per week</h3><div class="muted" style="margin-bottom:10px">Percentage goed telt slordige fouten niet mee. De bedenktijd is de mediaan van haar goede antwoorden: hoe korter, hoe meer het uit het hoofd gaat.</div>
+  <div style="overflow-x:auto"><table class="hard"><tr><th>Week van</th><th>Pogingen</th><th>% goed</th><th></th><th>Bedenktijd</th><th></th></tr>`;
+  weeks.forEach(w=>{const tot=w.goed+w.echt,pct=tot?w.goed/tot:0,md=mediaan(w.ms);
+    h+=`<tr><td>${w.start.toLocaleDateString('nl-NL',{day:'numeric',month:'short'})}</td><td>${w.goed+w.echt+w.slordig}${w.slordig?` <span class="muted">(${w.slordig} slordig)</span>`:''}</td>
+      <td><b>${Math.round(pct*100)}%</b></td><td style="width:22%"><div class="tb"><i style="width:${pct*100}%;background:${col(pct)}"></i></div></td>
+      <td>${md?(md/1000).toFixed(1).replace('.',',')+' s':'–'}</td><td style="width:22%"><div class="tb"><i style="width:${md?md/maxMs*100:0}%;background:#7b5cff"></i></div></td></tr>`});
+  h+='</table></div></div>';
+  el.innerHTML=h;
+}
+
 async function renderAnalysis(){
   $('#paLoading').style.display='';$('#paLoading').textContent='Gegevens ophalen…';$('#paBody').style.display='none';
   if(store.online)settings=await store.loadSettings();
-  let F,S,TT;
-  try{[F,S,TT]=await Promise.all([store.loadFacts(),store.loadSessions(),store.loadTests()])}
+  let F,S,TT,AN=[];
+  try{[F,S,TT,AN]=await Promise.all([store.loadFacts(),store.loadSessions(),store.loadTests(),store.loadAnswers()])}
   catch(e){$('#paLoading').textContent='Kon de gegevens niet ophalen: '+e.message;return}
   facts=F;lastTest=computeLastTest(TT);
   const tests=[...TT.tests].filter(t=>t.total>0).sort((a,b)=>a.started_at<b.started_at?-1:1);
+  AZ=analyseerPogingen(toPogingen(AN||[]));
   A={F,S:S.filter(s=>s.correct+s.wrong>0).sort((a,b)=>a.started_at<b.started_at?-1:1),tests,tans:TT.answers};
   $('#paLoading').style.display='none';$('#paBody').style.display='';
   drawAnalysis();
 }
 function drawAnalysis(){
+  if(paView!=='overzicht')paTab(paView);
   const {F,S,tests,tans}=A;
   const tot=S.reduce((a,s)=>a+s.active_ms,0),good=S.reduce((a,s)=>a+s.correct,0),all=S.reduce((a,s)=>a+s.correct+s.wrong,0);
   const days=new Set(S.map(s=>new Date(s.started_at).toDateString())).size;
@@ -1524,17 +1750,18 @@ function drawAnalysis(){
 }
 function drawHeat(){
   const {F,tans}=A;
-  const modes=[['goed','% goed bij oefenen'],['vlot','⚡ % vlot bij oefenen'],['toets','Laatste toets']];
+  const modes=[['status','Status'],['goed','% goed bij oefenen'],['vlot','⚡ % vlot bij oefenen'],['toets','Laatste toets']];
   $('#heatSeg').innerHTML=modes.map(([m,l])=>`<button class="${heatMode===m?'on':''}" onclick="heatMode='${m}';drawHeat()">${l}</button>`).join('');
-  $('#heatExpl').textContent='Rij = tafel, kolom = keer-getal (rij 7, kolom 8 is 8 × 7). '+(heatMode==='goed'?'Getal = % goed.':heatMode==='vlot'?'Getal = % van de keren goed én binnen 3 seconden begonnen met intikken.':'Uitslag van de laatste keer dat deze som in een toets zat.')+' Tik op een vakje voor details.';
-  $('#heatLegend').innerHTML=heatMode==='toets'
+  $('#heatExpl').textContent='Rij = tafel, kolom = keer-getal (rij 7, kolom 8 is 8 × 7). '+(heatMode==='status'?'Status per som op basis van de laatste 5 pogingen (✓✓ zit erin, ✓ kent ze, ↗ gaat vooruit, ~ wisselend, ! lastig; minder dan 5 pogingen: aantal keer).':heatMode==='goed'?'Getal = % goed.':heatMode==='vlot'?'Getal = % van de keren goed én binnen 3 seconden begonnen met intikken.':'Uitslag van de laatste keer dat deze som in een toets zat.')+' Tik op een vakje voor details.';
+  $('#heatLegend').innerHTML=heatMode==='status'?STATUS_VOLG.map(st=>`<span><i style="background:${STATUS[st][2]};outline:1px solid ${STATUS[st][1]}"></i>${STATUS[st][0]}</span>`).join(''):heatMode==='toets'
     ?'<span><i style="background:#3ecf7e"></i>⚡ vlot</span><span><i style="background:#ffc55c"></i>🐢 goed maar te laat</span><span><i style="background:#ff7a7a"></i>❌ fout</span><span><i style="background:#eee"></i>nog niet getoetst</span>'
     :'<span><i style="background:#3ecf7e"></i>≥ 90%</span><span><i style="background:#c8e66a"></i>75–90%</span><span><i style="background:#ffc55c"></i>50–75%</span><span><i style="background:#ff7a7a"></i>&lt; 50%</span><span><i style="background:#eee"></i>nog geen gegevens</span>';
   const used=new Set();Object.keys(F).forEach(k=>used.add(+k.split('x')[1]));Object.keys(lastTest).forEach(k=>used.add(+k.split('x')[1]));
   const tl=[...new Set([...settings.tables,...used])].sort((a,b)=>a-b);
   let h='<div class="h"></div>'+[1,2,3,4,5,6,7,8,9,10].map(n=>`<div class="h">${n}×</div>`).join('');
   tl.forEach(t=>{h+=`<div class="h">${t}</div>`;for(let n=1;n<=10;n++){const k=n+'x'+t,f=F[k];let v=null,txt='·',bg='#eee';
-    if(heatMode==='toets'){const r=lastTest[k];if(r){bg=RES[r][1];txt=RES[r][0]}}
+    if(heatMode==='status'){const z=AZ&&AZ[k];if(z){bg=STATUS[z.status][2];txt=z.status==='nieuw'?z.pogingen.length+'×':({zit_erin:'✓✓',kent_ze:'✓',gaat_vooruit:'↗',wisselend:'~',lastig:'!'})[z.status]}}
+    else if(heatMode==='toets'){const r=lastTest[k];if(r){bg=RES[r][1];txt=RES[r][0]}}
     else{v=heatMode==='goed'?(f?f.correct/f.tries:null):vlotP(f);if(v!==null){bg=col(v);txt=Math.round(v*100)}}
     h+=`<div class="c" style="background:${bg};${txt==='·'?'color:#aaa':''}" data-k="${k}">${txt}</div>`}});
   const hm=$('#heat');hm.style.gridTemplateColumns='30px repeat(10,minmax(28px,1fr))';hm.innerHTML=h;$('#cellInfo').textContent='';
